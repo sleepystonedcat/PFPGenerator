@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SLEEPY•STONED•CAT | PFP Generator v1</title>
+<link rel="stylesheet" href="https://unpkg.com/98.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r95/three.min.js"></script>
+<script src="https://www.vantajs.com/dist/vanta.clouds.min.js"></script>
+<style>
+  body, html {
+    height: 100%;
+    margin: 0;
+    overflow: hidden; /* Prevents scrollbars from appearing */
+    font-family: Arial, sans-serif;
+    text-align: center;
+  }
+  #vanta {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+  }
+  #container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+  }
+  .window title-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  #canvas {
+    border: 1px solid #000;
+    cursor: default;
+  }
+  #sliderContainer {
+    display: none;
+    margin-top: 20px;
+  }
+  #slider {
+    width: 300px;
+  }
+</style>
+</head>
+<body>
+  <div id="vanta"></div>
+  <div id="container">
+    <div class="window">
+      <div class="title-bar">
+        <div class="title-bar-text">SLEEPY•STONED•CAT | PFP Generator v1</div>
+      </div>
+      <div class="window-body">
+        <fieldset>
+          <label for="upload">Upload Background Image:</label>
+          <input type="file" id="upload" class="input-file" accept="image/*">
+        </fieldset>
+        <br>
+        <button id="overlayBtn" class="button" disabled>Add "sleepy stoned cat"</button>
+        <br>
+               <br>
+        <canvas id="canvas"></canvas>
+        <div id="sliderContainer">
+          <label for="slider">Resize Sleepy Cat</label>
+          <input type="range" id="slider" min="10" max="200" value="100">
+          <p>Right click and save image after you have placed your sleepy stoned cat! 💤</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    VANTA.CLOUDS({
+      el: "#vanta",
+      mouseControls: true,
+      touchControls: true,
+      minHeight: 200.00,
+      minWidth: 200.00,
+      scale: 1.00,
+      scaleMobile: 1.00
+    })
+
+    const uploadInput = document.getElementById('upload');
+    const overlayBtn = document.getElementById('overlayBtn');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const sliderContainer = document.getElementById('sliderContainer');
+    const slider = document.getElementById('slider');
+    const windowElement = document.querySelector('.window');
+
+    let backgroundImage = null;
+    let overlayImage = null;
+    let isDragging = false;
+    let startX, startY, startWidth, startHeight;
+    let overlayX, overlayY, overlayWidth, overlayHeight;
+
+    uploadInput.addEventListener('change', handleUpload);
+    overlayBtn.addEventListener('click', handleOverlay);
+    slider.addEventListener('input', resizeOverlay);
+
+    function handleUpload(event) {
+      const file = event.target.files[0];
+      if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          backgroundImage = new Image();
+          backgroundImage.onload = function() {
+            canvas.width = backgroundImage.width;
+            canvas.height = backgroundImage.height;
+            ctx.drawImage(backgroundImage, 0, 0);
+            overlayBtn.disabled = false;
+            updateWindowSize(backgroundImage.width, backgroundImage.height);
+          };
+          backgroundImage.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function handleOverlay() {
+      const overlaySrc = 'https://i.imgur.com/bZT8j45.png';
+      overlayImage = new Image();
+      overlayImage.onload = function() {
+        const scale = Math.min(
+          canvas.width / overlayImage.width,
+          canvas.height / overlayImage.height
+        );
+        overlayWidth = overlayImage.width * scale;
+        overlayHeight = overlayImage.height * scale;
+        overlayX = (canvas.width - overlayWidth) / 2;
+        overlayY = (canvas.height - overlayHeight) / 2; 
+        redrawOverlay();
+        sliderContainer.style.display = 'block';
+        enableDragging();
+      };
+      overlayImage.src = overlaySrc;
+    }
+
+    function resizeOverlay() {
+      const scale = slider.value / 100;
+      overlayWidth = overlayImage.width * scale;
+      overlayHeight = overlayImage.height * scale;
+      redrawOverlay();
+    }
+    function enableDragging() {
+      canvas.addEventListener('mousedown', function(e) {
+        if (isMouseOnOverlay(e)) {
+          isDragging = true;
+          startX = e.offsetX;
+          startY = e.offsetY;
+          canvas.style.cursor = 'move';
+        }
+      });
+
+      canvas.addEventListener('mousemove', function(e) {
+        if (isDragging) {
+          const offsetX = e.offsetX - startX;
+          const offsetY = e.offsetY - startY;
+          overlayX += offsetX;
+          overlayY += offsetY;
+          redrawOverlay();
+          startX = e.offsetX;
+          startY = e.offsetY;
+        }
+      });
+
+      canvas.addEventListener('mouseup', function() {
+        isDragging = false;
+        canvas.style.cursor = 'default';
+      });
+    }
+
+    function redrawOverlay() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(backgroundImage, 0, 0);
+      ctx.drawImage(overlayImage, overlayX, overlayY, overlayWidth, overlayHeight);
+    }
+
+    function isMouseOnOverlay(e) {
+      return e.offsetX >= overlayX && e.offsetX <= overlayX + overlayWidth &&
+             e.offsetY >= overlayY && e.offsetY <= overlayY + overlayHeight;
+    }
+
+    function updateWindowSize(imgWidth, imgHeight) {
+      windowElement.style.width = `${imgWidth + 40}px`; 
+      windowElement.style.height = `${imgHeight + 200}px`; 
+    }
+  </script>
+</body>
+</html>
