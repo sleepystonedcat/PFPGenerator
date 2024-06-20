@@ -51,14 +51,17 @@
         </fieldset>
         <br>
         <button id="overlayBtn" class="button" disabled>Add Overlay Image</button>
+                            <br>
         <br>
-               <br>
         <canvas id="canvas"></canvas>
         <div id="sliderContainer">
         <p>Drag the cat around with your mouse!</p>
           <label for="slider">Resize Sleepy Cat</label>
           <input type="range" id="slider" min="10" max="200" value="100">
-          <p>Right click and save image after you have placed your sleepy stoned cat! 💤</p>
+ 
+        <button id="saveBtn" class="button" disabled>Save Image</button>
+                  <br>
+                            <br>
         </div>
       </div>
     </div>
@@ -67,6 +70,7 @@
   <script>
     const uploadInput = document.getElementById('upload');
     const overlayBtn = document.getElementById('overlayBtn');
+    const saveBtn = document.getElementById('saveBtn');
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     const sliderContainer = document.getElementById('sliderContainer');
@@ -82,6 +86,7 @@
     uploadInput.addEventListener('change', handleUpload);
     overlayBtn.addEventListener('click', handleOverlay);
     slider.addEventListener('input', resizeOverlay);
+    saveBtn.addEventListener('click', saveImage);
 
     function handleUpload(event) {
       const file = event.target.files[0];
@@ -102,10 +107,11 @@
       }
     }
 
-    function handleOverlay() {
-      const overlaySrc = 'https://i.imgur.com/bZT8j45.png'; 
-      overlayImage = new Image();
-      overlayImage.onload = function() {
+function handleOverlay() {
+  const overlaySrc = 'https://i.imgur.com/bZT8j45.png'; 
+  overlayImage = new Image();
+  overlayImage.crossOrigin = "anonymous"; 
+  overlayImage.onload = function() {
         const scale = Math.min(
           canvas.width / overlayImage.width,
           canvas.height / overlayImage.height
@@ -117,6 +123,7 @@
         redrawOverlay();
         sliderContainer.style.display = 'block';
         enableDragging();
+        saveBtn.disabled = false; // enable the save button
       };
       overlayImage.src = overlaySrc;
     }
@@ -127,42 +134,53 @@
       overlayHeight = overlayImage.height * scale;
       redrawOverlay();
     }
-function enableDragging() {
-  function startDrag(e) {
-    if (isMouseOnOverlay(e)) {
-      isDragging = true;
-      startX = e.offsetX || e.touches[0].clientX;
-      startY = e.offsetY || e.touches[0].clientY;
-      canvas.style.cursor = 'move';
-    }
-  }
 
-  function drag(e) {
-    if (isDragging) {
-      const offsetX = (e.offsetX || e.touches[0].clientX) - startX;
-      const offsetY = (e.offsetY || e.touches[0].clientY) - startY;
-      overlayX += offsetX;
-      overlayY += offsetY;
-      redrawOverlay();
-      startX = e.offsetX || e.touches[0].clientX;
-      startY = e.offsetY || e.touches[0].clientY;
-    }
-  }
-
-  function endDrag() {
-    isDragging = false;
-    canvas.style.cursor = 'default';
-  }
-
-  canvas.addEventListener('mousedown', startDrag);
-  canvas.addEventListener('mousemove', drag);
-  canvas.addEventListener('mouseup', endDrag);
-
-  // Add touch event listeners
-  canvas.addEventListener('touchstart', startDrag);
-  canvas.addEventListener('touchmove', drag);
-  canvas.addEventListener('touchend', endDrag);
+function saveImage() {
+  const dataUrl = canvas.toDataURL('image/png');
+  const link = document.createElement('a');
+  link.href = dataUrl;
+  link.download = 'image.png';
+  document.body.appendChild(link);
+  link.click(); 
+  document.body.removeChild(link);
 }
+
+    function enableDragging() {
+      function startDrag(e) {
+        if (isMouseOnOverlay(e)) {
+          isDragging = true;
+          startX = e.offsetX || e.touches[0].clientX;
+          startY = e.offsetY || e.touches[0].clientY;
+          canvas.style.cursor = 'move';
+        }
+      }
+
+      function drag(e) {
+        if (isDragging) {
+          const offsetX = (e.offsetX || e.touches[0].clientX) - startX;
+          const offsetY = (e.offsetY || e.touches[0].clientY) - startY;
+          overlayX += offsetX;
+          overlayY += offsetY;
+          redrawOverlay();
+          startX = e.offsetX || e.touches[0].clientX;
+          startY = e.offsetY || e.touches[0].clientY;
+        }
+      }
+
+      function endDrag() {
+        isDragging = false;
+        canvas.style.cursor = 'default';
+      }
+
+      canvas.addEventListener('mousedown', startDrag);
+      canvas.addEventListener('mousemove', drag);
+      canvas.addEventListener('mouseup', endDrag);
+
+      // Add touch event listeners
+      canvas.addEventListener('touchstart', startDrag);
+      canvas.addEventListener('touchmove', drag);
+      canvas.addEventListener('touchend', endDrag);
+    }
 
     function redrawOverlay() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -179,6 +197,7 @@ function enableDragging() {
       windowElement.style.width = `${imgWidth + 40}px`; 
       windowElement.style.height = `${imgHeight + 200}px`; 
     }
+    
   </script>
 </body>
 </html>
