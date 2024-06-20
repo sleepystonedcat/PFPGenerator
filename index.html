@@ -1,3 +1,5 @@
+add vanta.js cloud bacgkound to this:
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,24 +7,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SLEEPY•STONED•CAT | PFP Generator v1</title>
 <link rel="stylesheet" href="https://unpkg.com/98.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r95/three.min.js"></script>
-<script src="https://www.vantajs.com/dist/vanta.clouds.min.js"></script>
 <style>
-  body, html {
-    height: 100%;
-    margin: 0;
-    overflow: hidden; /* Prevents scrollbars from appearing */
+  body {
     font-family: Arial, sans-serif;
     text-align: center;
-  }
-  #vanta {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
+    background: black;
   }
   #container {
-    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -47,7 +38,6 @@
 </style>
 </head>
 <body>
-  <div id="vanta"></div>
   <div id="container">
     <div class="window">
       <div class="title-bar">
@@ -59,7 +49,7 @@
           <input type="file" id="upload" class="input-file" accept="image/*">
         </fieldset>
         <br>
-        <button id="overlayBtn" class="button" disabled>Add "sleepy stoned cat"</button>
+        <button id="overlayBtn" class="button" disabled>Add Overlay Image</button>
         <br>
                <br>
         <canvas id="canvas"></canvas>
@@ -73,16 +63,6 @@
   </div>
 
   <script>
-    VANTA.CLOUDS({
-      el: "#vanta",
-      mouseControls: true,
-      touchControls: true,
-      minHeight: 200.00,
-      minWidth: 200.00,
-      scale: 1.00,
-      scaleMobile: 1.00
-    })
-
     const uploadInput = document.getElementById('upload');
     const overlayBtn = document.getElementById('overlayBtn');
     const canvas = document.getElementById('canvas');
@@ -121,7 +101,7 @@
     }
 
     function handleOverlay() {
-      const overlaySrc = 'https://i.imgur.com/bZT8j45.png';
+      const overlaySrc = 'https://i.imgur.com/bZT8j45.png'; // URL of the overlay image
       overlayImage = new Image();
       overlayImage.onload = function() {
         const scale = Math.min(
@@ -130,8 +110,8 @@
         );
         overlayWidth = overlayImage.width * scale;
         overlayHeight = overlayImage.height * scale;
-        overlayX = (canvas.width - overlayWidth) / 2;
-        overlayY = (canvas.height - overlayHeight) / 2; 
+        overlayX = (canvas.width - overlayWidth) / 2; // center the overlay
+        overlayY = (canvas.height - overlayHeight) / 2; // center the overlay
         redrawOverlay();
         sliderContainer.style.display = 'block';
         enableDragging();
@@ -185,8 +165,8 @@
     }
 
     function updateWindowSize(imgWidth, imgHeight) {
-      windowElement.style.width = `${imgWidth + 40}px`; 
-      windowElement.style.height = `${imgHeight + 200}px`; 
+      windowElement.style.width = `${imgWidth + 40}px`; // Adding some padding
+      windowElement.style.height = `${imgHeight + 200}px`; // Adding some padding for controls
     }
   </script>
 </body>
