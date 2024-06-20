@@ -36,6 +36,8 @@
 </style>
 </head>
 <body>
+<br>
+<br>
   <div id="container">
     <div class="window">
       <div class="title-bar">
@@ -52,6 +54,7 @@
                <br>
         <canvas id="canvas"></canvas>
         <div id="sliderContainer">
+        <p>Drag the cat around with your mouse!</p>
           <label for="slider">Resize Sleepy Cat</label>
           <input type="range" id="slider" min="10" max="200" value="100">
           <p>Right click and save image after you have placed your sleepy stoned cat! 💤</p>
@@ -99,7 +102,7 @@
     }
 
     function handleOverlay() {
-      const overlaySrc = 'https://i.imgur.com/bZT8j45.png'; // URL of the overlay image
+      const overlaySrc = 'https://i.imgur.com/bZT8j45.png'; 
       overlayImage = new Image();
       overlayImage.onload = function() {
         const scale = Math.min(
@@ -108,8 +111,8 @@
         );
         overlayWidth = overlayImage.width * scale;
         overlayHeight = overlayImage.height * scale;
-        overlayX = (canvas.width - overlayWidth) / 2; // center the overlay
-        overlayY = (canvas.height - overlayHeight) / 2; // center the overlay
+        overlayX = (canvas.width - overlayWidth) / 2;
+        overlayY = (canvas.height - overlayHeight) / 2; 
         redrawOverlay();
         sliderContainer.style.display = 'block';
         enableDragging();
@@ -123,33 +126,42 @@
       overlayHeight = overlayImage.height * scale;
       redrawOverlay();
     }
-    function enableDragging() {
-      canvas.addEventListener('mousedown', function(e) {
-        if (isMouseOnOverlay(e)) {
-          isDragging = true;
-          startX = e.offsetX;
-          startY = e.offsetY;
-          canvas.style.cursor = 'move';
-        }
-      });
-
-      canvas.addEventListener('mousemove', function(e) {
-        if (isDragging) {
-          const offsetX = e.offsetX - startX;
-          const offsetY = e.offsetY - startY;
-          overlayX += offsetX;
-          overlayY += offsetY;
-          redrawOverlay();
-          startX = e.offsetX;
-          startY = e.offsetY;
-        }
-      });
-
-      canvas.addEventListener('mouseup', function() {
-        isDragging = false;
-        canvas.style.cursor = 'default';
-      });
+function enableDragging() {
+  function startDrag(e) {
+    if (isMouseOnOverlay(e)) {
+      isDragging = true;
+      startX = e.offsetX || e.touches[0].clientX;
+      startY = e.offsetY || e.touches[0].clientY;
+      canvas.style.cursor = 'move';
     }
+  }
+
+  function drag(e) {
+    if (isDragging) {
+      const offsetX = (e.offsetX || e.touches[0].clientX) - startX;
+      const offsetY = (e.offsetY || e.touches[0].clientY) - startY;
+      overlayX += offsetX;
+      overlayY += offsetY;
+      redrawOverlay();
+      startX = e.offsetX || e.touches[0].clientX;
+      startY = e.offsetY || e.touches[0].clientY;
+    }
+  }
+
+  function endDrag() {
+    isDragging = false;
+    canvas.style.cursor = 'default';
+  }
+
+  canvas.addEventListener('mousedown', startDrag);
+  canvas.addEventListener('mousemove', drag);
+  canvas.addEventListener('mouseup', endDrag);
+
+  // Add touch event listeners
+  canvas.addEventListener('touchstart', startDrag);
+  canvas.addEventListener('touchmove', drag);
+  canvas.addEventListener('touchend', endDrag);
+}
 
     function redrawOverlay() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -163,8 +175,8 @@
     }
 
     function updateWindowSize(imgWidth, imgHeight) {
-      windowElement.style.width = `${imgWidth + 40}px`; // Adding some padding
-      windowElement.style.height = `${imgHeight + 200}px`; // Adding some padding for controls
+      windowElement.style.width = `${imgWidth + 40}px`; 
+      windowElement.style.height = `${imgHeight + 200}px`; 
     }
   </script>
 </body>
