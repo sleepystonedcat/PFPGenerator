@@ -127,8 +127,6 @@
   let overlayX, overlayY, overlayWidth, overlayHeight;
   let isFlippedHorizontally = false;
   let isFlippedVertically = false;
-  let initialPinchDistance = null;
-  let initialOverlayWidth, initialOverlayHeight;
 
   uploadInput.addEventListener('change', handleUpload);
   overlayBtn.addEventListener('click', handleOverlay);
@@ -233,53 +231,33 @@
 
   function handleTouchStart(event) {
     event.preventDefault();
-    if (event.touches.length === 1) {
-      const rect = canvas.getBoundingClientRect();
-      const touchX = event.touches[0].clientX - rect.left;
-      const touchY = event.touches[0].clientY - rect.top;
-      if (touchX > overlayX && touchX < overlayX + overlayWidth &&
-          touchY > overlayY && touchY < overlayY + overlayHeight) {
-        isDragging = true;
-        startX = touchX - overlayX;
-        startY = touchY - overlayY;
-      }
-    } else if (event.touches.length === 2) {
-      initialPinchDistance = getPinchDistance(event.touches);
-      initialOverlayWidth = overlayWidth;
-      initialOverlayHeight = overlayHeight;
+    const touch = event.touches[0];
+    const rect = canvas.getBoundingClientRect();
+    const touchX = touch.clientX - rect.left;
+    const touchY = touch.clientY - rect.top;
+    if (touchX > overlayX && touchX < overlayX + overlayWidth &&
+        touchY > overlayY && touchY < overlayY + overlayHeight) {
+      isDragging = true;
+      startX = touchX - overlayX;
+      startY = touchY - overlayY;
     }
   }
 
   function handleTouchMove(event) {
-    if (isDragging && event.touches.length === 1) {
+    if (isDragging) {
       event.preventDefault();
+      const touch = event.touches[0];
       const rect = canvas.getBoundingClientRect();
-      const touchX = event.touches[0].clientX - rect.left;
-      const touchY = event.touches[0].clientY - rect.top;
+      const touchX = touch.clientX - rect.left;
+      const touchY = touch.clientY - rect.top;
       overlayX = touchX - startX;
       overlayY = touchY - startY;
-      redrawOverlay();
-    } else if (event.touches.length === 2 && initialPinchDistance) {
-      event.preventDefault();
-      const currentPinchDistance = getPinchDistance(event.touches);
-      const scale = currentPinchDistance / initialPinchDistance;
-      overlayWidth = initialOverlayWidth * scale;
-      overlayHeight = initialOverlayHeight * scale;
       redrawOverlay();
     }
   }
 
   function handleTouchEnd(event) {
-    if (isDragging && event.touches.length === 0) {
-      isDragging = false;
-    }
-    initialPinchDistance = null;
-  }
-
-  function getPinchDistance(touches) {
-    const dx = touches[0].clientX - touches[1].clientX;
-    const dy = touches[0].clientY - touches[1].clientY;
-    return Math.sqrt(dx * dx + dy * dy);
+    isDragging = false;
   }
 
   function updateWindowSize(width, height) {
