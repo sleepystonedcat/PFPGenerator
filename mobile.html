@@ -219,8 +219,9 @@ function uploadFile(file) {
 }
 
 function applyWatermark(img) {
-  canvas.width = img.width;
-  canvas.height = img.height;
+  const scale = Math.min(460 / img.width, 280 / img.height);
+  canvas.width = img.width * scale;
+  canvas.height = img.height * scale;
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
   
   watermarkAspectRatio = watermarkImage.width / watermarkImage.height;
@@ -331,16 +332,23 @@ resizeSlider.addEventListener('input', function() {
   redrawCanvas();
 });
 
-canvas.toBlob(function(blob) {
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.download = 'sleepystonedcat_pfp.png';
-  link.href = url;
-  link.click();
-  URL.revokeObjectURL(url);
-  statusMessage.textContent = "Image saved successfully!";
-}, 'image/png', 1.0); // 1.0 indicates the highest quality
-
+downloadBtn.addEventListener('click', function() {
+  try {
+    canvas.toBlob(function(blob) {
+      if (navigator.msSaveBlob) {
+        // For IE and Edge
+        navigator.msSaveBlob(blob, 'watermarked_image.png');
+      } else {
+        // For other browsers
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.download = 'sleepystonedcat_pfp.png';
+        link.href = url;
+        link.click();
+        URL.revokeObjectURL(url);
+      }
+      statusMessage.textContent = "Image saved successfully!";
+    }, 'image/png');
   } catch (error) {
     console.error("Error exporting canvas:", error);
     statusMessage.textContent = "Unable to save the image. This might be due to browser security restrictions when working with images from different origins.";
