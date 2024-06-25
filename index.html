@@ -55,16 +55,45 @@
     #buttonContainer {
       display: flex;
       justify-content: center;
-      gap: 10px; /* Add space between buttons */
+      gap: 10px; 
     }
     #flipButtonContainer {
       display: flex;
       justify-content: center;
-      gap: 10px; /* Add space between buttons */
+      gap: 10px; 
+    }
+    
+    .marquee-container {
+      overflow: hidden;
+      white-space: nowrap;
+      width: 100%;
+      box-sizing: border-box;
+      margin: 20px 0;
+    }
+    .marquee-content {
+      display: inline-block;
+      padding-left: 100%;
+      animation: marquee 15s linear infinite;
+    }
+    .marquee-content img {
+      height: 100px;
+      margin: 0 25px; 
+      vertical-align: middle;
+    }
+    @keyframes marquee {
+      from {
+        transform: translateX(0);
+      }
+      to {
+        transform: translateX(-100%);
+      }
     }
   </style>
+  
 </head>
 <body>
+
+
 
   <script type="text/javascript">
     if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)){
@@ -110,8 +139,11 @@
     <img src="https://cyber.dabamos.de/88x31/bestviewedcomp.gif">
    <img src="https://cyber.dabamos.de/88x31/freencool.gif">
   <br>
+  
+
+  
   <div id="bottom-container">
-    <div class="window">
+    <div class="window" style="width:300px;">
       <div class="title-bar">
         <div class="title-bar-text">OFFICIAL LINKS</div>
       </div>
@@ -122,7 +154,17 @@
           Twitter: <a href="https://x.com/SLEEPYSTONEDCAT" target="_blank">x.com/SLEEPYSTONEDCAT</a>
           <br><br><br>
         </fieldset>
-        <br>
+    <div class="marquee-container">
+    <div class="marquee-content">
+      <img src="https://files.catbox.moe/hoobvt.jpg" alt="Image 1">
+      <img src="https://files.catbox.moe/evokqr.jpg" alt="Image 2">
+      <img src="https://files.catbox.moe/w4jpc0.png" alt="Image 3">
+      <img src="https://files.catbox.moe/jaz15c.png" alt="Image 4">
+      <img src="https://files.catbox.moe/1tsbhk.jpg" alt="Image 5">
+            <img src="https://files.catbox.moe/5dtoy2.jpg" alt="Image 6">
+      <img src="https://files.catbox.moe/8wbdzq.png" alt="Image 7">
+    </div>
+  </div>
         <fieldset>
           <marquee>💤 BUY $SLEEPY 💤</marquee>
           <p><b>Secondary:</b></p>
@@ -133,6 +175,7 @@
         </fieldset>
       </div>
     </div>
+    
   </div>
   <script>
     const uploadInput = document.getElementById('upload');
