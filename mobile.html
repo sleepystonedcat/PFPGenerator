@@ -69,6 +69,12 @@
   #resizeSlider {
     width: 100%;
   }
+    #header {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto 16px;
+    display: block;
+  }
 
   @media (max-width: 600px) {
     body {
@@ -83,10 +89,14 @@
       max-height: 200px;
     }
   }
+      #header {
+      width: 100%;
+    }
+  }
 </style>
 </head>
 <body>
-  <img src="https://files.catbox.moe/cfd63d.gif">
+<img id="header" src="https://files.catbox.moe/cfd63d.gif" alt="SLEEPY•STONED•CAT">
   
 <div class="window">
   <div class="title-bar">
@@ -104,6 +114,7 @@
     <div id="resizeContainer">
       <label for="resizeSlider">Resize $sleepy cat:</label>
       <br>
+            <br>
       <input type="range" id="resizeSlider" min="10" max="100" value="23">
     </div>
     <button id="downloadBtn">Save PFP</button>
