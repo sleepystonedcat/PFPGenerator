@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SLEEPY•STONED•CAT</title>
+  <link rel="stylesheet" href="https://unpkg.com/98.css">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -18,15 +19,21 @@
       user-select: none; 
       margin: 0;
       padding: 0;
+      overflow: hidden;
     }
     #container {
       display: flex;
       flex-direction: column;
       align-items: center;
       padding: 10px;
+      overflow: auto;
+      max-height: 100vh;
+      width: 100vw;
     }
     .window {
       margin: 0 auto;
+      max-width: 100%;
+      overflow: auto;
     }
     .title-bar {
       display: flex;
@@ -38,10 +45,13 @@
       cursor: default;
       width: 100%;
       height: auto;
+      max-width: 100%;
+      max-height: 60vh;
     }
     #sliderContainer {
       display: none;
       margin-top: 10px;
+      overflow: auto;
     }
     #slider {
       width: 90%;
@@ -117,8 +127,6 @@
   let overlayX, overlayY, overlayWidth, overlayHeight;
   let isFlippedHorizontally = false;
   let isFlippedVertically = false;
-  let initialPinchDistance = null;
-  let initialOverlayWidth, initialOverlayHeight;
 
   uploadInput.addEventListener('change', handleUpload);
   overlayBtn.addEventListener('click', handleOverlay);
@@ -223,73 +231,33 @@
 
   function handleTouchStart(event) {
     event.preventDefault();
+    const touch = event.touches[0];
     const rect = canvas.getBoundingClientRect();
-    const touchX = event.touches[0].clientX - rect.left;
-    const touchY = event.touches[0].clientY - rect.top;
-
-    if (
-      touchX > overlayX && touchX < overlayX + overlayWidth &&
-      touchY > overlayY && touchY < overlayY + overlayHeight
-    ) {
+    const touchX = touch.clientX - rect.left;
+    const touchY = touch.clientY - rect.top;
+    if (touchX > overlayX && touchX < overlayX + overlayWidth &&
+        touchY > overlayY && touchY < overlayY + overlayHeight) {
       isDragging = true;
       startX = touchX - overlayX;
       startY = touchY - overlayY;
-    } else if (event.touches.length === 2) {
-      initialPinchDistance = getPinchDistance(event.touches);
-      initialOverlayWidth = overlayWidth;
-      initialOverlayHeight = overlayHeight;
     }
   }
 
   function handleTouchMove(event) {
     if (isDragging) {
       event.preventDefault();
+      const touch = event.touches[0];
       const rect = canvas.getBoundingClientRect();
-      const touchX = event.touches[0].clientX - rect.left;
-      const touchY = event.touches[0].clientY - rect.top;
-
+      const touchX = touch.clientX - rect.left;
+      const touchY = touch.clientY - rect.top;
       overlayX = touchX - startX;
       overlayY = touchY - startY;
-
-      // Ensure overlay stays within bounds
-      if (overlayX < 0) overlayX = 0;
-      if (overlayY < 0) overlayY = 0;
-      if (overlayX + overlayWidth > canvas.width) overlayX = canvas.width - overlayWidth;
-      if (overlayY + overlayHeight > canvas.height) overlayY = canvas.height - overlayHeight;
-
-      redrawOverlay();
-    } else if (event.touches.length === 2 && initialPinchDistance) {
-      event.preventDefault();
-      const currentPinchDistance = getPinchDistance(event.touches);
-            const scale = currentPinchDistance / initialPinchDistance;
-      overlayWidth = initialOverlayWidth * scale;
-      overlayHeight = initialOverlayHeight * scale;
-
-      // Ensure overlay maintains a minimum size
-      if (overlayWidth < 10) overlayWidth = 10;
-      if (overlayHeight < 10) overlayHeight = 10;
-
-      // Ensure overlay stays within bounds
-      if (overlayX < 0) overlayX = 0;
-      if (overlayY < 0) overlayY = 0;
-      if (overlayX + overlayWidth > canvas.width) overlayX = canvas.width - overlayWidth;
-      if (overlayY + overlayHeight > canvas.height) overlayY = canvas.height - overlayHeight;
-
       redrawOverlay();
     }
   }
 
   function handleTouchEnd(event) {
-    if (isDragging && event.touches.length === 0) {
-      isDragging = false;
-    }
-    initialPinchDistance = null;
-  }
-
-  function getPinchDistance(touches) {
-    const dx = touches[0].clientX - touches[1].clientX;
-    const dy = touches[0].clientY - touches[1].clientY;
-    return Math.sqrt(dx * dx + dy * dy);
+    isDragging = false;
   }
 
   function updateWindowSize(width, height) {
@@ -299,4 +267,3 @@
 </script>
 </body>
 </html>
-
