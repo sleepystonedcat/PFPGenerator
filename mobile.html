@@ -29,8 +29,6 @@
       padding: 10px;
     }
     .window {
-      width: 100%;
-      max-width: 500px;
       margin: 0 auto;
     }
     .title-bar {
@@ -46,19 +44,11 @@
     }
     #sliderContainer {
       display: none;
-      margin-top: 20px;
+      margin-top: 10px;
     }
     #slider {
-      width: 100%;
-      max-width: 300px;
-    }
-    #bottom-container {
-      position: fixed;
-      bottom: 10px;
-      left: 50%;
-      transform: translateX(-50%);
       width: 90%;
-      max-width: 500px;
+      max-width: 300px;
     }
     #buttonContainer {
       display: flex;
@@ -75,12 +65,6 @@
     img {
       max-width: 100%;
       height: auto;
-    }
-
-    marquee {
-      overflow: hidden;
-      white-space: nowrap;
-      display: block;
     }
   </style>
 </head>
@@ -116,16 +100,6 @@
         </div>
       </div>
     </div>
-  </div>
-  <br>
-  <img src="https://anlucas.neocities.org/hash_now.gif" alt="Hash Now">
-  <img src="https://cyber.dabamos.de/88x31/bestviewedcomp.gif" alt="Best Viewed Comp">
-  <img src="https://cyber.dabamos.de/88x31/freencool.gif" alt="Free and Cool">
-  <br>
-  <div id="bottom-container">
-
-
-    
   </div>
   <script>
     const uploadInput = document.getElementById('upload');
