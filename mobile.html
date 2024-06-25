@@ -1,269 +1,357 @@
-<!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SLEEPY•STONED•CAT</title>
-  <link rel="stylesheet" href="https://unpkg.com/98.css">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
+    <title>WatermarkPro - Easy Photo Watermarking</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/98.css/0.1.0/98.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
       background: url('https://web.archive.org/web/20091027034121/http://www.geocities.com/jessdchick/BACKGROUNDanimatedchangingcolorstars.gif') repeat;
-      -webkit-touch-callout: none; 
-      -webkit-user-select: none;
-      -khtml-user-select: none; 
-      -moz-user-select: none; 
-      -ms-user-select: none;
-      user-select: none; 
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-    }
-    #container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 10px;
-      overflow: auto;
-      max-height: 100vh;
-      width: 100vw;
-    }
-    .window {
-      margin: 0 auto;
-      max-width: 100%;
-      overflow: auto;
-    }
-    .title-bar {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    #canvas {
-      border: 1px solid #000;
-      cursor: default;
-      width: 100%;
-      height: auto;
-      max-width: 100%;
-      max-height: 60vh;
-    }
-    #sliderContainer {
-      display: none;
-      margin-top: 10px;
-      overflow: auto;
-    }
-    #slider {
-      width: 90%;
-      max-width: 300px;
-    }
-    #buttonContainer {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    #flipButtonContainer {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    img {
-      max-width: 100%;
-      height: auto;
-    }
-  </style>
+       -webkit-touch-callout: none; 
+    -webkit-user-select: none;
+     -khtml-user-select: none; 
+       -moz-user-select: none; 
+        -ms-user-select: none;
+            user-select: none; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+      font-family: Arial, sans-serif;
+        }
+
+        .window {
+            width: 90%;
+            max-width: 600px;
+            margin: 10px;
+        }
+
+        .title-bar-text {
+            text-align: center;
+        }
+
+        .window-body {
+            padding: 10px;
+            background-color: #c0c0c0;
+        }
+
+        #dropArea {
+            border: 2px dashed #000;
+            background-color: #525252;
+            height: 150px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+
+        #dropArea:hover, #dropArea.highlight {
+            border-color: #000080;
+            background-color: #e0e0e0;
+        }
+
+        #imagePreview {
+            display: block;
+            margin: 0 auto 20px;
+            max-width: 100%;
+            max-height: 300px;
+        }
+
+        #downloadBtn {
+            display: block;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 600px) {
+            #dropArea {
+                height: 100px;
+                font-size: 0.9em;
+            }
+
+            #imagePreview {
+                max-height: 200px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <img src="https://files.catbox.moe/cfd63d.gif" alt="Animated Cat">
-  <br><br>
-  <div id="container">
     <div class="window">
-      <div class="title-bar">
-        <div class="title-bar-text">PFP Generator v1.1</div>
-      </div>
-      <div class="window-body">
-        <fieldset>
-          <label for="upload">Upload Background Image:</label>
-          <input type="file" id="upload" class="input-file" accept="image/*">
-        </fieldset>
-        <br>
-        <button id="overlayBtn" class="button" disabled>Add $sleepy cat</button>
-        <br><br>
-        <canvas id="canvas"></canvas>
-        <div id="sliderContainer">
-          <p>Drag the cat around with your finger!</p>
-          <label for="slider">Resize Sleepy Cat</label>
-          <input type="range" id="slider" min="10" max="200" value="100">
-          <br><br>
-          <div id="buttonContainer">
-            <div id="flipButtonContainer">
-              <button id="flipHorizontalBtn" class="button" disabled>Flip Horizontally</button>
-              <button id="flipVerticalBtn" class="button" disabled>Flip Vertically</button>
-              <button id="saveBtn" class="button" disabled>Save Image</button>
-            </div>
-          </div>
+        <div class="title-bar">
+            <div class="title-bar-text">SLEEPY•STONED•CAT
+
+</div>
+<br>
         </div>
-      </div>
+        <div class="window-body">
+            <div id="dropArea" class="custom-cursor">Tap to upload or drop image here</div>
+            <canvas id="imagePreview" class="custom-cursor"></canvas>
+            <button id="downloadBtn" class="button">Download SLEEPY•STONED•CAT
+
+PFP</button>
+        </div>
     </div>
-  </div>
-<script>
-  const uploadInput = document.getElementById('upload');
-  const overlayBtn = document.getElementById('overlayBtn');
-  const saveBtn = document.getElementById('saveBtn');
-  const flipHorizontalBtn = document.getElementById('flipHorizontalBtn');
-  const flipVerticalBtn = document.getElementById('flipVerticalBtn');
-  const canvas = document.getElementById('canvas');
-  const ctx = canvas.getContext('2d');
-  const sliderContainer = document.getElementById('sliderContainer');
-  const slider = document.getElementById('slider');
-  const windowElement = document.querySelector('.window');
 
-  let backgroundImage = null;
-  let overlayImage = null;
-  let isDragging = false;
-  let startX, startY;
-  let overlayX, overlayY, overlayWidth, overlayHeight;
-  let isFlippedHorizontally = false;
-  let isFlippedVertically = false;
+    <script>
+        const dropArea = document.getElementById('dropArea');
+        const canvas = document.getElementById('imagePreview');
+        const ctx = canvas.getContext('2d');
+        const downloadBtn = document.getElementById('downloadBtn');
 
-  uploadInput.addEventListener('change', handleUpload);
-  overlayBtn.addEventListener('click', handleOverlay);
-  slider.addEventListener('input', resizeOverlay);
-  saveBtn.addEventListener('click', saveImage);
-  flipHorizontalBtn.addEventListener('click', flipHorizontally);
-  flipVerticalBtn.addEventListener('click', flipVertically);
+        const watermarkUrl = 'https://files.catbox.moe/7d1ilx.png';
+        let watermarkImage = new Image();
+        watermarkImage.crossOrigin = "anonymous";
+        watermarkImage.src = watermarkUrl;
 
-  function handleUpload(event) {
-    const file = event.target.files[0];
-    if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        backgroundImage = new Image();
-        backgroundImage.onload = function() {
-          canvas.width = backgroundImage.width;
-          canvas.height = backgroundImage.height;
-          ctx.drawImage(backgroundImage, 0, 0);
-          overlayBtn.disabled = false;
-          updateWindowSize(backgroundImage.width, backgroundImage.height);
-        };
-        backgroundImage.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
-  }
+        let isDragging = false;
+        let isResizing = false;
+        let startX, startY;
+        let watermarkX, watermarkY, watermarkWidth, watermarkHeight;
+        let mainImage;
+        let watermarkAspectRatio;
+        let resizeHandle = '';
+        let isHoveringWatermark = false;
 
-  function handleOverlay() {
-    const overlaySrc = 'https://i.imgur.com/14NZtJF.png'; 
-    overlayImage = new Image();
-    overlayImage.crossOrigin = "anonymous"; 
-    overlayImage.onload = function() {
-      const scale = Math.min(
-        canvas.width / overlayImage.width,
-        canvas.height / overlayImage.height
-      );
-      overlayWidth = overlayImage.width * scale;
-      overlayHeight = overlayImage.height * scale;
-      overlayX = (canvas.width - overlayWidth) / 2;
-      overlayY = (canvas.height - overlayHeight) / 2; 
-      redrawOverlay();
-      sliderContainer.style.display = 'block';
-      enableTouchControls();
-      saveBtn.disabled = false;
-      flipHorizontalBtn.disabled = false; 
-      flipVerticalBtn.disabled = false; 
-    };
-    overlayImage.src = overlaySrc;
-  }
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
 
-  function resizeOverlay() {
-    const scale = slider.value / 100;
-    overlayWidth = overlayImage.width * scale;
-    overlayHeight = overlayImage.height * scale;
-    redrawOverlay();
-  }
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
 
-  function saveImage() {
-    const dataUrl = canvas.toDataURL('image/png');
-    const link = document.createElement('a');
-    link.href = dataUrl;
-    link.download = 'image.png';
-    document.body.appendChild(link);
-    link.click(); 
-    document.body.removeChild(link);
-  }
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
 
-  function flipHorizontally() {
-    isFlippedHorizontally = !isFlippedHorizontally;
-    redrawOverlay();
-  }
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
 
-  function flipVertically() {
-    isFlippedVertically = !isFlippedVertically;
-    redrawOverlay();
-  }
+        function highlight() {
+            dropArea.classList.add('highlight');
+        }
 
-  function redrawOverlay() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(backgroundImage, 0, 0);
-    ctx.save();
-    ctx.translate(overlayX + overlayWidth / 2, overlayY + overlayHeight / 2);
-    ctx.scale(
-      isFlippedHorizontally ? -1 : 1, 
-      isFlippedVertically ? -1 : 1
-    );
-    ctx.drawImage(
-      overlayImage, 
-      -overlayWidth / 2, 
-      -overlayHeight / 2, 
-      overlayWidth, 
-      overlayHeight
-    );
-    ctx.restore();
-  }
+        function unhighlight() {
+            dropArea.classList.remove('highlight');
+        }
 
-  function enableTouchControls() {
-    canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
-    canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
-    canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
-  }
+        dropArea.addEventListener('drop', handleDrop, false);
+        dropArea.addEventListener('click', () => {
+            let input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = e => handleFiles(e.target.files);
+            input.click();
+        });
 
-  function handleTouchStart(event) {
-    event.preventDefault();
-    const touch = event.touches[0];
-    const rect = canvas.getBoundingClientRect();
-    const touchX = touch.clientX - rect.left;
-    const touchY = touch.clientY - rect.top;
-    if (touchX > overlayX && touchX < overlayX + overlayWidth &&
-        touchY > overlayY && touchY < overlayY + overlayHeight) {
-      isDragging = true;
-      startX = touchX - overlayX;
-      startY = touchY - overlayY;
-    }
-  }
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
 
-  function handleTouchMove(event) {
-    if (isDragging) {
-      event.preventDefault();
-      const touch = event.touches[0];
-      const rect = canvas.getBoundingClientRect();
-      const touchX = touch.clientX - rect.left;
-      const touchY = touch.clientY - rect.top;
-      overlayX = touchX - startX;
-      overlayY = touchY - startY;
-      redrawOverlay();
-    }
-  }
+        function handleFiles(files) {
+            ([...files]).forEach(uploadFile);
+        }
 
-  function handleTouchEnd(event) {
-    isDragging = false;
-  }
+        function uploadFile(file) {
+            if (!file.type.startsWith('image/')) return;
 
-  function updateWindowSize(width, height) {
-    windowElement.style.width = `${Math.min(width + 100, window.innerWidth * 0.9)}px`;
-    windowElement.style.height = `${Math.min(height + 275, window.innerHeight * 0.9)}px`;
-  }
-</script>
+            let reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onloadend = function() {
+                mainImage = new Image();
+                mainImage.crossOrigin = "anonymous";
+                mainImage.src = reader.result;
+                mainImage.onload = function() {
+                    applyWatermark(mainImage);
+                }
+            }
+        }
+
+        function applyWatermark(img) {
+            const maxWidth = Math.min(img.width, window.innerWidth - 40);
+            const scale = maxWidth / img.width;
+            canvas.width = maxWidth;
+            canvas.height = img.height * scale;
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            watermarkAspectRatio = watermarkImage.width / watermarkImage.height;
+
+            const isMobile = window.innerWidth <= 600;
+            const watermarkScale = isMobile ? 0.35 : 0.23;
+
+            watermarkWidth = canvas.width * watermarkScale;
+            watermarkHeight = watermarkWidth / watermarkAspectRatio;
+            watermarkX = canvas.width - watermarkWidth - 10;
+            watermarkY = canvas.height - watermarkHeight - 5;
+
+            ctx.drawImage(watermarkImage, watermarkX, watermarkY, watermarkWidth, watermarkHeight);
+
+            downloadBtn.style.display = 'block';
+            redrawCanvas();
+        }
+
+        function redrawCanvas(hideHandles = false) {
+            if (!mainImage) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(mainImage, 0, 0, canvas.width, canvas.height);
+            ctx.drawImage(watermarkImage, watermarkX, watermarkY, watermarkWidth, watermarkHeight);
+
+            if (!hideHandles && isHoveringWatermark) {
+                const handleSize = 30;
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
+                ctx.lineWidth = 2;
+
+                ctx.beginPath();
+                ctx.rect(watermarkX - handleSize / 2, watermarkY - handleSize / 2, handleSize, handleSize);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.rect(watermarkX + watermarkWidth - handleSize / 2, watermarkY - handleSize / 2, handleSize, handleSize);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.rect(watermarkX - handleSize / 2, watermarkY + watermarkHeight - handleSize / 2, handleSize, handleSize);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.rect(watermarkX + watermarkWidth - handleSize / 2, watermarkY + watermarkHeight - handleSize / 2, handleSize, handleSize);
+                ctx.fill();
+                ctx.stroke();
+            }
+        }
+
+        function handleStart(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            startX = touch.clientX - canvas.offsetLeft;
+            startY = touch.clientY - canvas.offsetTop;
+
+            const handleSize = 30;
+
+            if (startX >= watermarkX - handleSize / 2 && startX <= watermarkX + handleSize / 2 &&
+                startY >= watermarkY - handleSize / 2 && startY <= watermarkY + handleSize / 2) {
+                isResizing = true;
+                resizeHandle = 'topleft';
+            } else if (startX >= watermarkX + watermarkWidth - handleSize / 2 && startX <= watermarkX + watermarkWidth + handleSize / 2 &&
+                startY >= watermarkY - handleSize / 2 && startY <= watermarkY + handleSize / 2) {
+                isResizing = true;
+                resizeHandle = 'topright';
+            } else if (startX >= watermarkX - handleSize / 2 && startX <= watermarkX + handleSize / 2 &&
+                startY >= watermarkY + watermarkHeight - handleSize / 2 && startY <= watermarkY + watermarkHeight + handleSize / 2) {
+                isResizing = true;
+                resizeHandle = 'bottomleft';
+            } else if (startX >= watermarkX + watermarkWidth - handleSize / 2 && startX <= watermarkX + watermarkWidth + handleSize / 2 &&
+                startY >= watermarkY + watermarkHeight - handleSize / 2 && startY <= watermarkY + watermarkHeight + handleSize / 2) {
+                isResizing = true;
+                resizeHandle = 'bottomright';
+            } else if (startX >= watermarkX && startX <= watermarkX + watermarkWidth &&
+                startY >= watermarkY && startY <= watermarkY + watermarkHeight) {
+                isDragging = true;
+            }
+
+            isHoveringWatermark = true;
+            redrawCanvas();
+        }
+
+        function handleMove(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const mouseX = touch.clientX - canvas.offsetLeft;
+            const mouseY = touch.clientY - canvas.offsetTop;
+
+            if (isDragging) {
+                watermarkX += mouseX - startX;
+                watermarkY += mouseY - startY;
+
+                startX = mouseX;
+                startY = mouseY;
+
+                redrawCanvas();
+            } else if (isResizing) {
+                let newWidth, newHeight;
+
+                switch (resizeHandle) {
+                    case 'topleft':
+                        newWidth = watermarkWidth + (watermarkX - mouseX);
+                        newHeight = newWidth / watermarkAspectRatio;
+                        watermarkX = mouseX;
+                        watermarkY = watermarkY + watermarkHeight - newHeight;
+                        break;
+                    case 'topright':
+                        newWidth = mouseX - watermarkX;
+                        newHeight = newWidth / watermarkAspectRatio;
+                        watermarkY = watermarkY + watermarkHeight - newHeight;
+                        break;
+                    case 'bottomleft':
+                        newWidth = watermarkWidth + (watermarkX - mouseX);
+                        newHeight = newWidth / watermarkAspectRatio;
+                        watermarkX = mouseX;
+                        break;
+                    case 'bottomright':
+                        newWidth = mouseX - watermarkX;
+                        newHeight = newWidth / watermarkAspectRatio;
+                        break;
+                }
+
+                watermarkWidth = Math.max(20, newWidth);
+                watermarkHeight = Math.max(20, newHeight);
+
+                redrawCanvas();
+            }
+        }
+
+        function handleEnd(e) {
+            isDragging = false;
+            isResizing = false;
+            setTimeout(() => {
+                isHoveringWatermark = false;
+                redrawCanvas();
+            }, 2000);
+        }
+
+        canvas.addEventListener('touchstart', handleStart, false);
+        canvas.addEventListener('touchmove', handleMove, false);
+        canvas.addEventListener('touchend', handleEnd, false);
+
+        downloadBtn.addEventListener('click', function() {
+            try {
+                redrawCanvas(true);
+
+                const link = document.createElement('a');
+                link.download = 'sleepystonedcat_image.png';
+                link.href = canvas.toDataURL();
+                link.click();
+
+                redrawCanvas();
+            } catch (error) {
+                console.error("Error exporting canvas:", error);
+                alert("Unable to download the image. This might be due to browser security restrictions when working with images from different origins.");
+            }
+        });
+
+        document.addEventListener('paste', function(event) {
+            var items = (event.clipboardData || event.originalEvent.clipboardData).items;
+            for (var index in items) {
+                var item = items[index];
+                if (item.kind === 'file') {
+                    var blob = item.getAsFile();
+                    handleFiles([blob]);
+                }
+            }
+        });
+
+        redrawCanvas();
+    </script>
 </body>
 </html>
