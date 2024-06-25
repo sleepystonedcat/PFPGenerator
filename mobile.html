@@ -101,170 +101,196 @@
       </div>
     </div>
   </div>
-  <script>
-    const uploadInput = document.getElementById('upload');
-    const overlayBtn = document.getElementById('overlayBtn');
-    const saveBtn = document.getElementById('saveBtn');
-    const flipHorizontalBtn = document.getElementById('flipHorizontalBtn');
-    const flipVerticalBtn = document.getElementById('flipVerticalBtn');
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    const sliderContainer = document.getElementById('sliderContainer');
-    const slider = document.getElementById('slider');
-    const windowElement = document.querySelector('.window');
+<script>
+  const uploadInput = document.getElementById('upload');
+  const overlayBtn = document.getElementById('overlayBtn');
+  const saveBtn = document.getElementById('saveBtn');
+  const flipHorizontalBtn = document.getElementById('flipHorizontalBtn');
+  const flipVerticalBtn = document.getElementById('flipVerticalBtn');
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const sliderContainer = document.getElementById('sliderContainer');
+  const slider = document.getElementById('slider');
+  const windowElement = document.querySelector('.window');
 
-    let backgroundImage = null;
-    let overlayImage = null;
-    let isDragging = false;
-    let startX, startY, startWidth, startHeight;
-    let overlayX, overlayY, overlayWidth, overlayHeight;
-    let isFlippedHorizontally = false;
-    let isFlippedVertically = false;
+  let backgroundImage = null;
+  let overlayImage = null;
+  let isDragging = false;
+  let startX, startY;
+  let overlayX, overlayY, overlayWidth, overlayHeight;
+  let isFlippedHorizontally = false;
+  let isFlippedVertically = false;
+  let initialPinchDistance = null;
+  let initialOverlayWidth, initialOverlayHeight;
 
-    uploadInput.addEventListener('change', handleUpload);
-    overlayBtn.addEventListener('click', handleOverlay);
-    slider.addEventListener('input', resizeOverlay);
-    saveBtn.addEventListener('click', saveImage);
-    flipHorizontalBtn.addEventListener('click', flipHorizontally);
-    flipVerticalBtn.addEventListener('click', flipVertically);
+  uploadInput.addEventListener('change', handleUpload);
+  overlayBtn.addEventListener('click', handleOverlay);
+  slider.addEventListener('input', resizeOverlay);
+  saveBtn.addEventListener('click', saveImage);
+  flipHorizontalBtn.addEventListener('click', flipHorizontally);
+  flipVerticalBtn.addEventListener('click', flipVertically);
 
-    function handleUpload(event) {
-      const file = event.target.files[0];
-      if (file && file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          backgroundImage = new Image();
-          backgroundImage.onload = function() {
-            canvas.width = backgroundImage.width;
-            canvas.height = backgroundImage.height;
-            ctx.drawImage(backgroundImage, 0, 0);
-            overlayBtn.disabled = false;
-            updateWindowSize(backgroundImage.width, backgroundImage.height);
-          };
-          backgroundImage.src = e.target.result;
+  function handleUpload(event) {
+    const file = event.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        backgroundImage = new Image();
+        backgroundImage.onload = function() {
+          canvas.width = backgroundImage.width;
+          canvas.height = backgroundImage.height;
+          ctx.drawImage(backgroundImage, 0, 0);
+          overlayBtn.disabled = false;
+          updateWindowSize(backgroundImage.width, backgroundImage.height);
         };
-        reader.readAsDataURL(file);
-      }
-    }
-
-    function handleOverlay() {
-      const overlaySrc = 'https://i.imgur.com/14NZtJF.png'; 
-      overlayImage = new Image();
-      overlayImage.crossOrigin = "anonymous"; 
-      overlayImage.onload = function() {
-        const scale = Math.min(
-          canvas.width / overlayImage.width,
-          canvas.height / overlayImage.height
-        );
-        overlayWidth = overlayImage.width * scale;
-        overlayHeight = overlayImage.height * scale;
-        overlayX = (canvas.width - overlayWidth) / 2;
-        overlayY = (canvas.height - overlayHeight) / 2; 
-        redrawOverlay();
-        sliderContainer.style.display = 'block';
-        enableDragging();
-        saveBtn.disabled = false;
-        flipHorizontalBtn.disabled = false; 
-        flipVerticalBtn.disabled = false; 
+        backgroundImage.src = e.target.result;
       };
-      overlayImage.src = overlaySrc;
+      reader.readAsDataURL(file);
     }
+  }
 
-    function resizeOverlay() {
-      const scale = slider.value / 100;
+  function handleOverlay() {
+    const overlaySrc = 'https://i.imgur.com/14NZtJF.png'; 
+    overlayImage = new Image();
+    overlayImage.crossOrigin = "anonymous"; 
+    overlayImage.onload = function() {
+      const scale = Math.min(
+        canvas.width / overlayImage.width,
+        canvas.height / overlayImage.height
+      );
       overlayWidth = overlayImage.width * scale;
       overlayHeight = overlayImage.height * scale;
+      overlayX = (canvas.width - overlayWidth) / 2;
+      overlayY = (canvas.height - overlayHeight) / 2; 
       redrawOverlay();
+      sliderContainer.style.display = 'block';
+      enableDragging();
+      saveBtn.disabled = false;
+      flipHorizontalBtn.disabled = false; 
+      flipVerticalBtn.disabled = false; 
+    };
+    overlayImage.src = overlaySrc;
+  }
+
+  function resizeOverlay() {
+    const scale = slider.value / 100;
+    overlayWidth = overlayImage.width * scale;
+    overlayHeight = overlayImage.height * scale;
+    redrawOverlay();
+  }
+
+  function saveImage() {
+    const dataUrl = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.href = dataUrl;
+    link.download = 'image.png';
+    document.body.appendChild(link);
+    link.click(); 
+    document.body.removeChild(link);
+  }
+
+  function flipHorizontally() {
+    isFlippedHorizontally = !isFlippedHorizontally;
+    redrawOverlay();
+  }
+
+  function flipVertically() {
+    isFlippedVertically = !isFlippedVertically;
+    redrawOverlay();
+  }
+
+  function redrawOverlay() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(backgroundImage, 0, 0);
+    ctx.save();
+    ctx.translate(overlayX + overlayWidth / 2, overlayY + overlayHeight / 2);
+    ctx.scale(
+      isFlippedHorizontally ? -1 : 1, 
+      isFlippedVertically ? -1 : 1
+    );
+    ctx.drawImage(
+      overlayImage, 
+      -overlayWidth / 2, 
+      -overlayHeight / 2, 
+      overlayWidth, 
+      overlayHeight
+    );
+    ctx.restore();
+  }
+
+  function enableDragging() {
+    canvas.addEventListener('mousedown', startDragging);
+    canvas.addEventListener('mousemove', drag);
+    canvas.addEventListener('mouseup', stopDragging);
+    canvas.addEventListener('mouseout', stopDragging);
+
+    canvas.addEventListener('touchstart', startDragging, { passive: false });
+    canvas.addEventListener('touchmove', drag, { passive: false });
+    canvas.addEventListener('touchend', stopDragging, { passive: false });
+    canvas.addEventListener('touchmove', handlePinch, { passive: false });
+  }
+
+  function startDragging(event) {
+    event.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = (event.touches ? event.touches[0].clientX : event.clientX) - rect.left;
+    const mouseY = (event.touches ? event.touches[0].clientY : event.clientY) - rect.top;
+
+    if (
+      mouseX > overlayX && mouseX < overlayX + overlayWidth &&
+      mouseY > overlayY && mouseY < overlayY + overlayHeight
+    ) {
+      isDragging = true;
+      startX = mouseX - overlayX;
+      startY = mouseY - overlayY;
+      if (event.touches && event.touches.length === 2) {
+        initialPinchDistance = getPinchDistance(event.touches);
+        initialOverlayWidth = overlayWidth;
+        initialOverlayHeight = overlayHeight;
+      }
     }
+  }
 
-    function saveImage() {
-      const dataUrl = canvas.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.href = dataUrl;
-      link.download = 'image.png';
-      document.body.appendChild(link);
-      link.click(); 
-      document.body.removeChild(link);
-    }
-
-    function flipHorizontally() {
-      isFlippedHorizontally = !isFlippedHorizontally;
-      redrawOverlay();
-    }
-
-    function flipVertically() {
-      isFlippedVertically = !isFlippedVertically;
-      redrawOverlay();
-    }
-
-    function redrawOverlay() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(backgroundImage, 0, 0);
-      ctx.save();
-      ctx.translate(overlayX + overlayWidth / 2, overlayY + overlayHeight / 2);
-      ctx.scale(
-        isFlippedHorizontally ? -1 : 1, 
-        isFlippedVertically ? -1 : 1
-      );
-      ctx.drawImage(
-        overlayImage, 
-        -overlayWidth / 2, 
-        -overlayHeight / 2, 
-        overlayWidth, 
-        overlayHeight
-      );
-      ctx.restore();
-    }
-
-    function enableDragging() {
-      canvas.addEventListener('mousedown', startDragging);
-      canvas.addEventListener('mousemove', drag);
-      canvas.addEventListener('mouseup', stopDragging);
-      canvas.addEventListener('mouseout', stopDragging);
-
-      canvas.addEventListener('touchstart', startDragging, { passive: false });
-      canvas.addEventListener('touchmove', drag, { passive: false });
-      canvas.addEventListener('touchend', stopDragging, { passive: false });
-    }
-
-    function startDragging(event) {
+  function drag(event) {
+    if (isDragging) {
       event.preventDefault();
       const rect = canvas.getBoundingClientRect();
       const mouseX = (event.touches ? event.touches[0].clientX : event.clientX) - rect.left;
       const mouseY = (event.touches ? event.touches[0].clientY : event.clientY) - rect.top;
 
-      if (
-        mouseX > overlayX && mouseX < overlayX + overlayWidth &&
-        mouseY > overlayY && mouseY < overlayY + overlayHeight
-      ) {
-        isDragging = true;
-        startX = mouseX - overlayX;
-        startY = mouseY - overlayY;
-      }
+      overlayX = mouseX - startX;
+      overlayY = mouseY - startY;
+
+      redrawOverlay();
     }
+  }
 
-    function drag(event) {
-      if (isDragging) {
-        event.preventDefault();
-        const rect = canvas.getBoundingClientRect();
-        const mouseX = (event.touches ? event.touches[0].clientX : event.clientX) - rect.left;
-        const mouseY = (event.touches ? event.touches[0].clientY : event.clientY) - rect.top;
+  function stopDragging() {
+    isDragging = false;
+    initialPinchDistance = null;
+  }
 
-        overlayX = mouseX - startX;
-        overlayY = mouseY - startY;
-
-        redrawOverlay();
-      }
+  function handlePinch(event) {
+    if (event.touches.length === 2 && initialPinchDistance) {
+      event.preventDefault();
+      const currentPinchDistance = getPinchDistance(event.touches);
+      const scale = currentPinchDistance / initialPinchDistance;
+      overlayWidth = initialOverlayWidth * scale;
+      overlayHeight = initialOverlayHeight * scale;
+      redrawOverlay();
     }
+  }
 
-    function stopDragging() {
-      isDragging = false;
-    }
+  function getPinchDistance(touches) {
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
 
-    function updateWindowSize(width, height) {
-      windowElement.style.width = `${Math.min(width + 100, window.innerWidth * 0.9)}px`;
-      windowElement.style.height = `${Math.min(height + 275, window.innerHeight * 0.9)}px`;
-    }
-  </script>
+  function updateWindowSize(width, height) {
+    windowElement.style.width = `${Math.min(width + 100, window.innerWidth * 0.9)}px`;
+    windowElement.style.height = `${Math.min(height + 275, window.innerHeight * 0.9)}px`;
+  }
+</script>
 </body>
 </html>
