@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SLEEPY•STONED•CAT</title>
+  <link rel="stylesheet" href="https://unpkg.com/98.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: url('https://web.archive.org/web/20091027034121/http://www.geocities.com/jessdchick/BACKGROUNDanimatedchangingcolorstars.gif') repeat;
+      -webkit-touch-callout: none; 
+      -webkit-user-select: none;
+      -khtml-user-select: none; 
+      -moz-user-select: none; 
+      -ms-user-select: none;
+      user-select: none; 
+      margin: 0;
+      padding: 0;
+    }
+    #container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 20px;
+      padding: 10px;
+    }
+    .window {
+      width: 90%;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    .title-bar {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #canvas {
+      border: 1px solid #000;
+      cursor: default;
+      width: 100%;
+      height: auto;
+    }
+    #sliderContainer {
+      display: none;
+      margin-top: 20px;
+    }
+    #slider {
+      width: 100%;
+      max-width: 300px;
+    }
+    #bottom-container {
+      position: fixed;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 500px;
+    }
+    #buttonContainer {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    #flipButtonContainer {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+    fieldset {
+      width: 100%;
+    }
+    marquee {
+      overflow: hidden;
+      white-space: nowrap;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <img src="https://files.catbox.moe/cfd63d.gif" alt="Animated Cat">
+  <br><br>
+  <div id="container">
+    <div class="window">
+      <div class="title-bar">
+        <div class="title-bar-text">PFP Generator v1.1</div>
+      </div>
+      <div class="window-body">
+        <fieldset>
+          <label for="upload">Upload Background Image:</label>
+          <input type="file" id="upload" class="input-file" accept="image/*">
+        </fieldset>
+        <br>
+        <button id="overlayBtn" class="button" disabled>Add $sleepy cat</button>
+        <br><br>
+        <canvas id="canvas"></canvas>
+        <div id="sliderContainer">
+          <p>Drag the cat around with your mouse!</p>
+          <label for="slider">Resize Sleepy Cat</label>
+          <input type="range" id="slider" min="10" max="200" value="100">
+          <br><br>
+          <div id="buttonContainer">
+            <div id="flipButtonContainer">
+              <button id="flipHorizontalBtn" class="button" disabled>Flip Horizontally</button>
+              <button id="flipVerticalBtn" class="button" disabled>Flip Vertically</button>
+              <button id="saveBtn" class="button" disabled>Save Image</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <br>
+  <img src="https://anlucas.neocities.org/hash_now.gif" alt="Hash Now">
+  <img src="https://cyber.dabamos.de/88x31/bestviewedcomp.gif" alt="Best Viewed Comp">
+  <img src="https://cyber.dabamos.de/88x31/freencool.gif" alt="Free and Cool">
+  <br>
+  <div id="bottom-container">
+    <div class="window">
+      <div class="title-bar">
+        <div class="title-bar-text">OFFICIAL LINKS</div>
+      </div>
+      <div class="window-body">
+        <fieldset>
+          <p><b>Socials:</b></p>
+          Telegram: <a href="https://t.me/SLEEPYSTONEDCAT" target="_blank">t.me/SLEEPYSTONEDCAT</a><br><br>
+          Twitter: <a href="https://x.com/SLEEPYSTONEDCAT" target="_blank">x.com/SLEEPYSTONEDCAT</a>
+          <br><br><br>
+        </fieldset>
+        <br>
+        <fieldset>
+          <marquee>💤 BUY $SLEEPY 💤</marquee>
+          <p><b>Secondary:</b></p>
+          <a href="https://magiceden.io/runes/SLEEPY%E2%80%A2STONED%E2%80%A2CAT" target="_blank">MagicEden</a><br><br>
+          <a href="https://unisat.io/runes/market?tick=SLEEPY%E2%80%A2STONED%E2%80%A2CAT" target="_blank">Unisat</a><br><br>
+          <a href="https://www.okx.com/web3/marketplace/runes/token/SLEEPY%E2%80%A2STONED%E2%80%A2CAT/848624:2006" target="_blank">OKX</a><br><br>
+          <marquee direction="right">💤 BUY $SLEEPY 💤</marquee>
+        </fieldset>
+      </div>
+    </div>
+  </div>
+  <script>
+    const uploadInput = document.getElementById('upload');
+    const overlayBtn = document.getElementById('overlayBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    const flipHorizontalBtn = document.getElementById('flipHorizontalBtn');
+    const flipVerticalBtn = document.getElementById('flipVerticalBtn');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const sliderContainer = document.getElementById('sliderContainer');
+    const slider = document.getElementById('slider');
+    const windowElement = document.querySelector('.window');
+
+    let backgroundImage = null;
+    let overlayImage = null;
+    let isDragging = false;
+    let startX, startY, startWidth, startHeight;
+    let overlayX, overlayY, overlayWidth, overlayHeight;
+    let isFlippedHorizontally = false;
+    let isFlippedVertically = false;
+
+    uploadInput.addEventListener('change', handleUpload);
+    overlayBtn.addEventListener('click', handleOverlay);
+    slider.addEventListener('input', resizeOverlay);
+    saveBtn.addEventListener('click', saveImage);
+    flipHorizontalBtn.addEventListener('click', flipHorizontally);
+    flipVerticalBtn.addEventListener('click', flipVertically);
+
+    function handleUpload(event) {
+      const file = event.target.files[0];
+      if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          backgroundImage = new Image();
+          backgroundImage.onload = function() {
+            canvas.width = backgroundImage.width;
+            canvas.height = backgroundImage.height;
+            ctx.drawImage(backgroundImage, 0, 0);
+            overlayBtn.disabled = false;
+            updateWindowSize(backgroundImage.width, backgroundImage.height);
+          };
+          backgroundImage.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function handleOverlay() {
+      const overlaySrc = 'https://i.imgur.com/14NZtJF.png'; 
+      overlayImage = new Image();
+      overlayImage.crossOrigin = "anonymous"; 
+      overlayImage.onload = function() {
+        const scale = Math.min(
+          canvas.width / overlayImage.width,
+          canvas.height / overlayImage.height
+        );
+        overlayWidth = overlayImage.width * scale;
+        overlayHeight = overlayImage.height * scale;
+        overlayX = (canvas.width - overlayWidth) / 2;
+        overlayY = (canvas.height - overlayHeight) / 2; 
+        redrawOverlay();
+        sliderContainer.style.display = 'block';
+        enableDragging();
+        saveBtn.disabled = false;
+        flipHorizontalBtn.disabled = false; 
+        flipVerticalBtn.disabled = false; 
+      };
+      overlayImage.src = overlaySrc;
+    }
+
+    function resizeOverlay() {
+      const scale = slider.value / 100;
+      overlayWidth = overlayImage.width * scale;
+      overlayHeight = overlayImage.height * scale;
+      redrawOverlay();
+    }
+
+    function saveImage() {
+      const dataUrl = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.href = dataUrl;
+      link.download = 'image.png';
+      document.body.appendChild(link);
+      link.click(); 
+      document.body.removeChild(link);
+    }
+
+    function flipHorizontally() {
+      isFlippedHorizontally = !isFlippedHorizontally;
+      redrawOverlay();
+    }
+
+    function flipVertically() {
+      isFlippedVertically = !isFlippedVertically;
+      redrawOverlay();
+    }
+
+    function redrawOverlay() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(backgroundImage, 0, 0);
+      ctx.save();
+      ctx.translate(overlayX + overlayWidth / 2, overlayY + overlayHeight / 2);
+      ctx.scale(
+        isFlippedHorizontally ? -1 : 1, 
+        isFlippedVertically ? -1 : 1
+      );
+      ctx.drawImage(
+        overlayImage, 
+        -overlayWidth / 2, 
+        -overlayHeight / 2, 
+        overlayWidth, 
+        overlayHeight
+      );
+      ctx.restore();
+    }
+
+    function enableDragging() {
+      canvas.addEventListener('mousedown', startDragging);
+      canvas.addEventListener('mousemove', drag);
+      canvas.addEventListener('mouseup', stopDragging);
+      canvas.addEventListener('mouseout', stopDragging);
+
+      canvas.addEventListener('touchstart', startDragging, { passive: false });
+      canvas.addEventListener('touchmove', drag, { passive: false });
+      canvas.addEventListener('touchend', stopDragging, { passive: false });
+    }
+
+    function startDragging(event) {
+      event.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = (event.touches ? event.touches[0].clientX : event.clientX) - rect.left;
+      const mouseY = (event.touches ? event.touches[0].clientY : event.clientY) - rect.top;
+
+      if (
+        mouseX > overlayX && mouseX < overlayX + overlayWidth &&
+        mouseY > overlayY && mouseY < overlayY + overlayHeight
+      ) {
+        isDragging = true;
+        startX = mouseX - overlayX;
+        startY = mouseY - overlayY;
+      }
+    }
+
+    function drag(event) {
+      if (isDragging) {
+        event.preventDefault();
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = (event.touches ? event.touches[0].clientX : event.clientX) - rect.left;
+        const mouseY = (event.touches ? event.touches[0].clientY : event.clientY) - rect.top;
+
+        overlayX = mouseX - startX;
+        overlayY = mouseY - startY;
+
+        redrawOverlay();
+      }
+    }
+
+    function stopDragging() {
+      isDragging = false;
+    }
+
+    function updateWindowSize(width, height) {
+      windowElement.style.width = `${Math.min(width + 100, window.innerWidth * 0.9)}px`;
+      windowElement.style.height = `${Math.min(height + 275, window.innerHeight * 0.9)}px`;
+    }
+  </script>
+</body>
+</html>
