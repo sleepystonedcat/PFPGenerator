@@ -11,8 +11,15 @@
       font-family: Arial, sans-serif;
       text-align: center;
       background: url('https://web.archive.org/web/20091027034121/http://www.geocities.com/jessdchick/BACKGROUNDanimatedchangingcolorstars.gif') repeat;
+      -webkit-touch-callout: none; 
+      -webkit-user-select: none;
+      -khtml-user-select: none; 
+      -moz-user-select: none; 
+      -ms-user-select: none;
+      user-select: none; 
       margin: 0;
       padding: 0;
+      overflow: hidden;
     }
     #container {
       display: flex;
@@ -21,6 +28,7 @@
       padding: 10px;
       overflow: auto;
       max-height: 100vh;
+      width: 100vw;
     }
     .window {
       margin: 0 auto;
@@ -85,7 +93,7 @@
         <br><br>
         <canvas id="canvas"></canvas>
         <div id="sliderContainer">
-          <p>Drag the cat around with your mouse!</p>
+          <p>Drag the cat around with your finger!</p>
           <label for="slider">Resize Sleepy Cat</label>
           <input type="range" id="slider" min="10" max="200" value="100">
           <br><br>
@@ -163,7 +171,7 @@
       overlayY = (canvas.height - overlayHeight) / 2; 
       redrawOverlay();
       sliderContainer.style.display = 'block';
-      enableDragging();
+      enableTouchControls();
       saveBtn.disabled = false;
       flipHorizontalBtn.disabled = false; 
       flipVerticalBtn.disabled = false; 
@@ -217,62 +225,41 @@
     ctx.restore();
   }
 
-  function enableDragging() {
-    canvas.addEventListener('mousedown', startDragging);
-    canvas.addEventListener('mousemove', drag);
-    canvas.addEventListener('mouseup', stopDragging);
-    canvas.addEventListener('mouseout', stopDragging);
-
-    canvas.addEventListener('touchstart', startDragging, { passive: false });
-    canvas.addEventListener('touchmove', drag, { passive: false });
-    canvas.addEventListener('touchend', stopDragging, { passive: false });
-    canvas.addEventListener('touchmove', handlePinch, { passive: false });
+  function enableTouchControls() {
+    canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+    canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+    canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
   }
 
-  function startDragging(event) {
+  function handleTouchStart(event) {
     event.preventDefault();
-    const rect = canvas.getBoundingClientRect();
-    const mouseX = (event.touches ? event.touches[0].clientX : event.clientX
-
-) - rect.left;
-    const mouseY = (event.touches ? event.touches[0].clientY : event.clientY) - rect.top;
-
-    if (
-      mouseX > overlayX && mouseX < overlayX + overlayWidth &&
-      mouseY > overlayY && mouseY < overlayY + overlayHeight
-    ) {
-      isDragging = true;
-      startX = mouseX - overlayX;
-      startY = mouseY - overlayY;
-      if (event.touches && event.touches.length === 2) {
-        initialPinchDistance = getPinchDistance(event.touches);
-        initialOverlayWidth = overlayWidth;
-        initialOverlayHeight = overlayHeight;
+    if (event.touches.length === 1) {
+      const rect = canvas.getBoundingClientRect();
+      const touchX = event.touches[0].clientX - rect.left;
+      const touchY = event.touches[0].clientY - rect.top;
+      if (touchX > overlayX && touchX < overlayX + overlayWidth &&
+          touchY > overlayY && touchY < overlayY + overlayHeight) {
+        isDragging = true;
+        startX = touchX - overlayX;
+        startY = touchY - overlayY;
       }
+    } else if (event.touches.length === 2) {
+      initialPinchDistance = getPinchDistance(event.touches);
+      initialOverlayWidth = overlayWidth;
+      initialOverlayHeight = overlayHeight;
     }
   }
 
-  function drag(event) {
-    if (isDragging) {
+  function handleTouchMove(event) {
+    if (isDragging && event.touches.length === 1) {
       event.preventDefault();
       const rect = canvas.getBoundingClientRect();
-      const mouseX = (event.touches ? event.touches[0].clientX : event.clientX) - rect.left;
-      const mouseY = (event.touches ? event.touches[0].clientY : event.clientY) - rect.top;
-
-      overlayX = mouseX - startX;
-      overlayY = mouseY - startY;
-
+      const touchX = event.touches[0].clientX - rect.left;
+      const touchY = event.touches[0].clientY - rect.top;
+      overlayX = touchX - startX;
+      overlayY = touchY - startY;
       redrawOverlay();
-    }
-  }
-
-  function stopDragging() {
-    isDragging = false;
-    initialPinchDistance = null;
-  }
-
-  function handlePinch(event) {
-    if (event.touches.length === 2 && initialPinchDistance) {
+    } else if (event.touches.length === 2 && initialPinchDistance) {
       event.preventDefault();
       const currentPinchDistance = getPinchDistance(event.touches);
       const scale = currentPinchDistance / initialPinchDistance;
@@ -280,6 +267,13 @@
       overlayHeight = initialOverlayHeight * scale;
       redrawOverlay();
     }
+  }
+
+  function handleTouchEnd(event) {
+    if (isDragging && event.touches.length === 0) {
+      isDragging = false;
+    }
+    initialPinchDistance = null;
   }
 
   function getPinchDistance(touches) {
