@@ -1,3 +1,16 @@
+To prevent the slider and buttons from going outside of the window when using a long image on mobile devices, you can use CSS to ensure that the elements stay within the viewport. You can make the following adjustments:
+
+1. **Adjust CSS Styles**:
+    - Use `overflow: auto` on the container to ensure any overflow content is scrollable.
+    - Use `max-width` and `max-height` to ensure the window and its contents are constrained within the viewport.
+
+2. **Update HTML and CSS**:
+    - Apply CSS styles to handle responsive layout and overflow scenarios.
+    - Ensure the canvas and controls fit within the viewport while maintaining their functionality.
+
+Here is the updated HTML and CSS code with the necessary adjustments:
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,16 +32,19 @@
       user-select: none; 
       margin: 0;
       padding: 0;
-
     }
     #container {
       display: flex;
       flex-direction: column;
       align-items: center;
       padding: 10px;
+      overflow: auto;
+      max-height: 100vh;
     }
     .window {
       margin: 0 auto;
+      max-width: 100%;
+      overflow: auto;
     }
     .title-bar {
       display: flex;
@@ -40,10 +56,13 @@
       cursor: default;
       width: 100%;
       height: auto;
+      max-width: 100%;
+      max-height: 60vh;
     }
     #sliderContainer {
       display: none;
       margin-top: 10px;
+      overflow: auto;
     }
     #slider {
       width: 90%;
@@ -232,7 +251,9 @@
   function startDragging(event) {
     event.preventDefault();
     const rect = canvas.getBoundingClientRect();
-    const mouseX = (event.touches ? event.touches[0].clientX : event.clientX) - rect.left;
+    const mouseX = (event.touches ? event.touches[0].clientX : event.clientX
+
+) - rect.left;
     const mouseY = (event.touches ? event.touches[0].clientY : event.clientY) - rect.top;
 
     if (
@@ -293,3 +314,13 @@
 </script>
 </body>
 </html>
+```
+
+### Key Adjustments:
+1. **CSS Adjustments**:
+   - Added `max-width: 100%` and `overflow: auto` to `.window` and `#container` to ensure that content does not overflow out of the window.
+   - Added `max-width: 100%` and `max-height: 60vh` to `#canvas` to make sure it fits within the viewport height.
+2. **JavaScript Adjustments**:
+   - No changes needed, as the JS code handles dynamic adjustments based on the image size and viewport.
+
+With these changes, the canvas, sliders, and buttons should stay within the viewport on mobile devices, ensuring a better user experience.
