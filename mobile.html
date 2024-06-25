@@ -252,17 +252,31 @@
       const touchY = touch.clientY - rect.top;
       overlayX = touchX - startX;
       overlayY = touchY - startY;
+       // Ensure overlay stays within bounds
+      if (overlayX < 0) overlayX = 0;
+      if (overlayY < 0) overlayY = 0;
+      if (overlayX + overlayWidth > canvas.width) overlayX = canvas.width - overlayWidth;
+      if (overlayY + overlayHeight > canvas.height) overlayY = canvas.height - overlayHeight;
+
       redrawOverlay();
     }
   }
 
   function handleTouchEnd(event) {
-    isDragging = false;
+    if (isDragging) {
+      isDragging = false;
+    }
   }
 
   function updateWindowSize(width, height) {
     windowElement.style.width = `${Math.min(width + 100, window.innerWidth * 0.9)}px`;
     windowElement.style.height = `${Math.min(height + 275, window.innerHeight * 0.9)}px`;
+  }
+
+  function getPinchDistance(touches) {
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
   }
 </script>
 </body>
