@@ -1,5 +1,5 @@
 <html>
-<head>    
+<head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>SLEEPY•STONED•CAT</title>
   <link rel="stylesheet" href="https://unpkg.com/98.css">
@@ -241,7 +241,8 @@
     }
 
     function applyWatermark(img) {
-      const scale = Math.min(460 / img.width, 280 / img.height);
+      // Scale up the canvas resolution
+      const scale = Math.min(920 / img.width, 560 / img.height);
       canvas.width = img.width * scale;
       canvas.height = img.height * scale;
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
